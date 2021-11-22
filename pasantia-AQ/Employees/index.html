@@ -1,0 +1,124 @@
+<!--#include file="../System/data/configuration.asp" -->
+<%
+  dim Filter
+  dim Resultado
+  dim EmployeeID
+  Resultado = request.querystring("Result")
+  Filter = request.form("Filter")
+  DoAction = request.form("DoAct")
+%>
+<!--#include file="../System/DataFunctions.asp"-->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="../System/Style.css">
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+  <script src="../System/jQuery.js"></script>
+  <meta charset="utf-8">
+  <title>Listado de empleados</title>
+</head>
+
+
+<body>
+  <!-- Header-->
+  <div class="header">
+    <img src="../System/Images/infiniteloop-logo.svg" class="logo">
+    <ul class="navbar ListStyle">
+      <li><img src="../system/Images/Home.png" height="15px" width="15px">Listado de empleados</li>
+      <li><a href="Details.asp"><img src= "../System/Images/Details.png" height="15px" width="15px">Detalles ultimo empleado</a></li>
+      <li><a href="Add.asp"><img src = "../System/Images/AddUser.png" height= "15px" width= "15px">Agregar empleado</a></li>
+    </ul>
+
+    <div class="breadcrumb">
+      <ul>
+        <li>Listado de empleados</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tabla">
+  
+  <% if Resultado = 1 then %>
+  <div class="MensajeResult">
+  <p>Se elimino el usuario.
+  </div>
+  <script>
+    setTimeout(()=>{$(".MensajeResult").slideUp();},3000);
+    //Mensaje();
+  </script>
+  <% end if %>
+
+  <% if Resultado < 0 then %>
+  <div class="MensajeError3">
+  <p>No se encontro al usuario.
+  </div>
+  <script>
+    setTimeout(()=>{$(".MensajeError3").slideUp();},3000);
+    //Mensaje();
+  </script>
+  <% end if %>
+
+    <div class="navbarTabla">
+      <form method="POST" action="index.asp">
+        <input type="text" class="FormAlfaNum" name="Filter">
+        <input type="hidden" name="DoAct" value="1">
+        <input type="submit" value="Buscar">
+        <a href="Add.asp" title="Agregar empleado"><img id="IndexImg"src = "../System/Images/AddUser.png" height= "25px" width= "23px"></a>
+        <%if DoAction = 0 then%>
+        <p>Apriete en buscar para mostrar el listado completo o introduzca un criterio de busqueda. 
+        <% end if%>
+        
+    <!-- navbar Tabla-->
+    <% if DoAction = 1 then
+      set ObjRs = BusquedaEmpleado(Filter)
+       if ObjRs.EOF then
+    %>
+    <div class="MensajeError3">
+      <p>No se encontro ninguna coincidencia.
+    </div>
+    <%
+    end if
+    %>
+
+      </form>
+    </div>
+    <!-- Tabla-->
+    <%if NOT ObjRs.EOF then
+    %>
+    <p>
+    <table width="100%">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Cargo</th>
+          <th>DNI</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+    <tbody>
+    <%While Not ObjRs.EOF
+      EmployeeID = CInt(ObjRs("EmployeeID"))
+    %> 
+      <tr>
+        <td><%=ObjRs("EmployeeName")%></td>
+        <td><%=ObjRs("EmployeeSurname")%></td>
+        <td><%=ObjRs("RoleName")%></td>
+        <td><%=ObjRs("EmployeeDNI")%></td>
+        <td><a href="Details.asp?IDEmp=<%=EmployeeID%>" title="Detalles empleado"> <img src= "../System/Images/Details.png" alt="Detalles" height="30px" width="30px"> </a> <a href="Edit.asp?IDEmp=<%=EmployeeID%>" title="Editar empleado"> <img src= "../System/Images/Edit.png" alt="Editar" height="30px" width="30px"> </a></td>
+      </tr> 
+    <%
+      ObjRs.MoveNext 
+      Wend
+    %>
+    </table>
+  <%
+  end if
+  end if
+  %>
+  </div>
+
+</body>
+
+</html>
